@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 using namespace std;
 
 template <typename T>
@@ -10,6 +11,12 @@ void disp(vector<T> v) {
         cout << elem << endl;
     }
 }
+// template <typename T>
+// void disp_range(unordered_set<T>::iterator &begin) { //, std::unordered_set<T>::iterator &end) {
+    // for (auto iter = begin; iter != end; iter++) {
+    //     cout << *iter << endl;
+    // }
+// }
 
 vector<int> anagram_pos(string w, string s) {
     vector<int> res;
@@ -44,9 +51,45 @@ vector<int> anagram_pos(string w, string s) {
     return res;
 }
 
+void gen_ana(string prefix, string sub_w, vector<string> &anagrams) {
+    if (sub_w.size() == 0) {
+        anagrams.push_back(prefix);
+        return;
+    }
+    for (int i = 0; i < sub_w.size(); i++) {
+        char prefix_char = sub_w[i];
+        string sub_sub_w(sub_w);
+        sub_sub_w.erase(i, 1);
+        gen_ana(prefix + prefix_char, sub_sub_w, anagrams);
+    }
+}
+
+vector<string> gen_all_anagram(string w) {
+    vector<string> anagrams;
+    gen_ana("", w, anagrams);
+    return anagrams;
+}
+
+vector<int> anagram_pos2(string w, string s) {
+    vector<string> all_anagrams_vector = gen_all_anagram(w);
+    unordered_set<string> all_anagrams_set(all_anagrams_vector.begin(), all_anagrams_vector.end());
+    // for (auto iter = all_anagrams_set.begin(); iter != all_anagrams_set.end(); iter++) {
+    //     cout << *iter << endl;
+    // }
+    vector<int> res;
+    res.reserve(s.size());
+    for (int i = 0; i < s.size(); i++) {
+        string sub_s_of_len_w = s.substr(i, w.size());
+        if (all_anagrams_set.count(sub_s_of_len_w)) res.push_back(i);
+    }
+    return res;
+}
+
 int main() {
     string s("abxaba");
     string w("ab");
-    vector<int> res = anagram_pos(w, s);
+    // vector<string> res = gen_all_anagram(w);
+    // disp(res);
+    vector<int> res = anagram_pos2(w, s);
     disp(res);
 }
